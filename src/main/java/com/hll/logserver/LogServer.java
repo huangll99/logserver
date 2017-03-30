@@ -1,4 +1,4 @@
-package com.hll;
+package com.hll.logserver;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;

@@ -1,4 +1,4 @@
-package com.hll;
+package com.hll.logserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,22 +19,24 @@ public class LogServerBootstrap {
   public static void main(String[] args) {
     try {
       //异步消费服务
-      logService =LogService.getInstance();
+      logService = LogService.getInstance();
       logService.start("f://logserver.log");
 
       //服务器
-      Configuration configuration = new Configuration();
-      configuration.setHost("127.0.0.1");
-      configuration.setPort(9999);
-
+      Configuration configuration = new Configuration(args[0], Integer.parseInt(args[1]));
       logServer = new LogServer(configuration);
       logServer.init();
       logServer.start();
-      Thread.sleep(Long.MAX_VALUE);
-    } catch (InterruptedException e) {
-      logger.warn("server exception:",e);
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        @Override
+        public void run() {
+          logServer.stop();
+          logService.stop();
+          System.exit(0);
+        }
+      });
     } catch (FileNotFoundException e) {
-      logger.error("找不到日志文件",e);
+      logger.error("找不到日志文件", e);
     } finally {
       if (logServer != null) {
         logServer.stop();

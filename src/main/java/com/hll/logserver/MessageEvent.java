@@ -1,4 +1,4 @@
-package com.hll;
+package com.hll.logserver;
 
 import com.lmax.disruptor.EventFactory;
 

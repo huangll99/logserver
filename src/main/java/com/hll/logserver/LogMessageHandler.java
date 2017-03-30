@@ -1,9 +1,8 @@
-package com.hll;
+package com.hll.logserver;
 
 import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.RingBuffer;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -42,6 +41,13 @@ public class LogMessageHandler extends ChannelHandlerAdapter {
     ringBuffer.publishEvent(translator,bytes);
 
     //返回OK响应
-    ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+    ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)).sync();
+    //关闭channel，释放连接资源
+    ctx.close();
+  }
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    logger.error("channel error:",cause);
   }
 }
